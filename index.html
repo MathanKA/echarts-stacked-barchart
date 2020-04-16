@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>ECharts</title>
+	<!-- including ECharts file -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.7.0/echarts.min.js" integrity="sha256-eKrx6Ly6b0Rscx/PSm52rJsvK76RJyv18Toswq+OLSs="
+	 crossorigin="anonymous">
+	</script>
+</head>
+
+<body>
+	<!-- prepare a DOM container with width and height -->
+	<div id="main" style="width: 600px;height:400px;"></div>
+	<script type="text/javascript">
+  var data =[
+  {
+    shop: 'exma shop',
+    vegs: [
+      {
+        branch: 'area 1',
+        count: 15
+      },
+      {
+        branch: 'area 2',
+        count: 2
+      },
+            {
+        branch: 'area 3',
+        count: 21
+      },
+    ],
+    fruits: [
+      {
+        branch: 'area 1',
+        count: 151
+      },
+      {
+        branch: 'area 2',
+        count: 23
+      },
+            {
+        branch: 'area 3',
+        count: 34
+      },
+    ],
+    nonVeg: [
+      {
+        branch: 'area 1',
+        count: 25
+      },
+      {
+        branch: 'area 2',
+        count: 29
+      },
+            {
+        branch: 'area 3',
+        count: 22
+      },
+    ]
+  },
+  {
+    shop: 'Metro',
+    vegs: [
+      {
+        branch: 'area 1',
+        count: 31
+      },
+      {
+        branch: 'area 2',
+        count: 54
+      },
+            {
+        branch: 'area 3',
+        count: 65
+      },
+    ],
+    fruits: [
+      {
+        branch: 'area 1',
+        count: 75
+      },
+      {
+        branch: 'area 2',
+        count: 43
+      },
+            {
+        branch: 'area 3',
+        count: 62
+      },
+    ],
+    nonVeg: [
+      {
+        branch: 'area 1',
+        count: 12
+      },
+      {
+        branch: 'area 2',
+        count: 43
+      },
+            {
+        branch: 'area 3',
+        count: 87
+      },
+    ]
+  },
+  {
+    shop: 'ABC',
+    vegs: [
+      {
+        branch: 'area 1',
+        count: 04
+      },
+      {
+        branch: 'area 2',
+        count: 34
+      },
+            {
+        branch: 'area 3',
+        count: 88
+      },
+    ],
+    fruits: [
+      {
+        branch: 'area 1',
+        count: 82
+      },
+      {
+        branch: 'area 2',
+        count: 69
+      },
+            {
+        branch: 'area 3',
+        count: 99
+      },
+    ],
+    nonVeg: [
+      {
+        branch: 'area 1',
+        count: 19
+      },
+      {
+        branch: 'area 2',
+        count: 47
+      },
+            {
+        branch: 'area 3',
+        count: 90
+      },
+    ]
+  }
+];
+
+    var formattedData = {};
+    formattedData['shops'] = [];
+        formattedData['seriesData'] = [];
+
+    for (const [index, item] of data.entries()) {
+          let tempItem= '';
+          if (item.shop.length > 30) {
+            tempItem = item.shop.slice(0, 30) + '...';
+          } else {
+            tempItem = item.shop;
+          }
+          formattedData['shops'].push(tempItem);
+          for (const type of Object.keys(item)) {
+            if (['vegs', 'fruits', 'nonVeg'].includes(type)) {
+              let count = [];
+              item[type].forEach(function (i) {
+                count.push(i.count);
+              })
+              count = count.filter(function (el, index, array) {
+                return array.indexOf(el) === index;
+              });
+              count.sort((a, b) => a - b);
+              for (const branch of item[type]) {
+                formattedData['seriesData'].push({
+                  name: type,
+                  type: 'bar',
+                  stack: type,
+                  barGap: '0',
+                  label: {
+                    normal: {
+                      show: true,
+                      position: 'inside',
+                      formatter: function (param) {
+                        return branch.count;
+                      },
+                    }
+                  },
+                  itemStyle: {
+                    'normal': {
+                      'color': '#f0f0f0'
+                    }
+                  },
+                  data: [[index, 3]]
+                })
+              }
+            }
+          }
+        }
+        // based on prepared DOM, initialize echarts instance
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // specify chart configuration item and data
+        var option = {
+            tooltip: {
+        show: true,
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        formatter: function (params) {
+          let toolTip = '';
+          if (params[0].axisValueLabel.length > 30) {
+            toolTip = '<span> Source:&nbsp;' + params[0].axisValueLabel.slice(0, 30) + '..&nbsp;' + '</span>';
+          } else {
+            toolTip = '<span> Source:&nbsp;' + params[0].axisValueLabel + '</span>';
+          }
+          return toolTip;
+        }
+      },
+      grid: {
+        bottom: '20%'
+      },
+      xAxis: [
+        {
+          show: true,
+          type: 'category',
+          data: formattedData['shops'],
+          name: 'Shops',
+          axisLabel: {
+            interval: 0
+          },
+          'nameTextStyle': {
+            'color': '#7d838b'
+          },
+        }
+      ],
+      'yAxis': [
+        {
+          'type': 'value',
+          name: 'Inventory',
+          'nameTextStyle': {
+            'color': '#7d838b'
+          },
+          'min': 0,
+          'max': 100,
+          'interval': 10,
+          'axisLabel': {
+            'show': true,
+            'textStyle': {
+              'color': '#7d838b'
+            }
+          },
+          'axisLine': {
+            'show': true
+          },
+          'splitLine': {
+            'lineStyle': {
+              'color': '#7d838b'
+            }
+          }
+        },
+      ],
+      legend: {
+        padding: [10, 0],
+        data: ['ip', 'domain', 'url', 'hash']
+      },
+      dataZoom: [
+        {
+          type: 'slider',
+          show: true,
+          start: 0,
+          end: 3,
+          realtime: false,
+          height: 30,
+          zoomLock: true,
+          handleIcon: 'path://M306.1,413c0,2.2-1.8,4-4,4h-59.8c-2.2,0-4-1.8-4-4V200.8c0-2.2,1.8-4,4-4h59.8c2.2,0,4,1.8,4,4V413z',
+          handleSize: '70%',
+          showDataShadow: false,
+          handleStyle: {
+            color: '#d3dee5',
+            borderColor: '#90979c'
+          },
+        }
+      ],
+      series: formattedData['seriesData']
+        };
+
+        // use configuration item and data specified to show chart
+        myChart.setOption(option);
+
+
+      
+	</script>
+</body>
+
+</html>
